@@ -1,7 +1,7 @@
 import os
 import time
 tempo_de_espera = 2
-def cadrastro_produto():
+def cadastro_produto():
     try:
         produto = input("digite o nome do produto: ").strip()
         preco = float(input('digite o preço do produto: '))
@@ -23,7 +23,7 @@ def cadrastro_produto():
 def listar_produtos():
     os.system('cls')
     if not produtos:
-        print('Nao tem produtos cadrastrado')
+        print('Nao tem produtos cadastrados')
     else:
         for l in produtos:
             os.system('cls')
@@ -144,7 +144,7 @@ while True:
     os.system('cls')
 
     if opcao == '1':
-        resultado = cadrastro_produto()
+        resultado = cadastro_produto()
         if resultado is None:
             continue
         produto, preco, quantidade = resultado
@@ -152,7 +152,7 @@ while True:
             if produtos[i][0].lower() == produto.lower():
                 os.system('cls')
                 
-                print('Produto já cadastrado!')
+                print('produto cadastrado! ')
                 time.sleep(tempo_de_espera)
                 break
         else:
