@@ -1,5 +1,20 @@
 import os
 import time
+import sqlite3
+
+def conexao():
+    conn = sqlite3.connect("estoque.db")
+    cursor = conn.cursor()
+    return conn, cursor
+
+def criar_tabela():
+    conn, cursor = conexao()
+    cursor.execute('CREATE TABLE IF NOT EXISTS produtos(nome TEXT, preco REAL, quantidade INTEGER)'
+                   )
+    conn.commit()
+
+
+
 tempo_de_espera = 2
 def cadastro_produto():
     try:
@@ -21,11 +36,14 @@ def cadastro_produto():
         
 
 def listar_produtos():
+    conn, cursor = conexao()
+    cursor.execute("SELECT * FROM produtos")
+    produtos_do_banco = cursor.fetchall()
     os.system('cls')
-    if not produtos:
+    if not produtos_do_banco:
         print('Nao tem produtos cadastrados')
     else:
-        for l in produtos:
+        for l in produtos_do_banco:
             os.system('cls')
             produto, preco ,quantidade = l
             print(f'produto: {produto}')
@@ -129,6 +147,7 @@ def valor_total():
     
         
 produtos = []
+criar_tabela()
 while True:
 
     print('===== SISTEMA DE ESTOQUE =====')
@@ -156,7 +175,10 @@ while True:
                 time.sleep(tempo_de_espera)
                 break
         else:
-            produtos.append([produto, preco, quantidade])
+            conn , cursor = conexao()
+            cursor.execute("INSERT INTO produtos VALUES(?, ?, ?)", (produto, preco, quantidade))
+            conn.commit()
+            
             os.system('cls')
             print("produto cadrastrado! ")
             time.sleep(tempo_de_espera)
