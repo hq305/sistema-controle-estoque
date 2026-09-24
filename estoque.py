@@ -3,7 +3,7 @@ import time
 import sqlite3
 
 def conexao():
-    conn = sqlite3.connect("estoque.db")
+    conn = sqlite3.connect('dados/estoque.db')
     cursor = conn.cursor()
     return conn, cursor
 
