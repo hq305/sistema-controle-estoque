@@ -72,7 +72,12 @@ A ideia é continuar evoluindo o sistema conforme avanço nos estudos.
 
 ## 🚧 Próximas melhorias
 
-- [ ] Salvar os produtos em arquivo ou banco de dados
+## Concluído
+
+- [x] Salvar os produtos em banco de dados (SQLite)
+
+## Próximas melhorias
+
 - [ ] Criar uma interface gráfica
 - [ ] Adicionar edição de produtos
 - [ ] Adicionar exclusão de produtos
