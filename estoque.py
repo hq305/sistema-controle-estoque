@@ -12,6 +12,7 @@ def criar_tabela():
     cursor.execute('CREATE TABLE IF NOT EXISTS produtos(nome TEXT, preco REAL, quantidade INTEGER)'
                    )
     conn.commit()
+    conn.close()
 
 
 
@@ -27,12 +28,26 @@ def cadastro_produto():
         if quantidade < 0:
             print('quantidade negativa!')
             return 
-        
+
     except ValueError:
         print('Digite um valor válido!')
         return None
     else:
-        return produto,preco,quantidade
+        conn, cursor = conexao()
+        cursor.execute("SELECT nome FROM produtos WHERE LOWER(nome) = LOWER(?)", (produto,))
+        resultado = cursor.fetchone()
+        if resultado:
+            conn.close()
+            os.system('cls')
+            print('produto ja cadastrado! ')
+            time.sleep(tempo_de_espera)
+        else:
+            cursor.execute("INSERT INTO produtos (nome, preco, quantidade) VALUES (?, ?, ?)", (produto, preco, quantidade))
+            conn.commit()
+            conn.close()
+            os.system('cls')
+            print('produto cadastrado! ')
+            time.sleep(tempo_de_espera)
         
 
 def listar_produtos():
@@ -53,30 +68,35 @@ def listar_produtos():
             time.sleep(tempo_de_espera)
 
 def buscar_produto():
+    conn,cursor = conexao()
     os.system('cls')
     busca = input("digite o nome do produto: ").strip()
-    for i in range(len(produtos)):
-        if produtos[i][0].lower() == busca.lower():
-            os.system('cls')
-            print('produto encontrado!')
-            print(f'produto: {produtos[i][0]}')
-            print(f'preco: R${produtos[i][1]:.2f}')
-            print(f'quantidade: {produtos[i][2]}')
-            print()
-            time.sleep(tempo_de_espera)
-            return
+    cursor.execute("SELECT nome, preco, quantidade FROM produtos WHERE LOWER(nome) = LOWER(?)",(busca,))
+    resultado = cursor.fetchone()
+    conn.close()
+    if resultado:
+        os.system('cls')
+        print('produto encontrado!')
+        print(f'produto: {resultado[0]}')
+        print(f'preco: R${resultado[1]:.2f}')
+        print(f'quantidade: {resultado[2]}')
+        print()
+        time.sleep(tempo_de_espera)
     else:
         os.system('cls')
         print('produto nao encontrado! ')
+        time.sleep(tempo_de_espera)
 
 def adicionar_estoque():
+    conn, cursor = conexao()
     nome = input('Digite o nome do produto que voce deseja adicionar: ').strip()
-    for l in range(len(produtos)):
-        if produtos[l][0].lower() == nome.lower():
+    cursor.execute("SELECT nome, quantidade FROM produtos WHERE LOWER(nome) = LOWER(?)",(nome,))
+    resultado = cursor.fetchone()
+    if resultado:
             os.system('cls')
             print('Produto encontrado!')
-            print(f'Produto: {produtos[l][0]}')
-            print(f'Estoque atual: {produtos[l][2]}')
+            print(f'Produto: {resultado[0]}')
+            print(f'Estoque atual: {resultado[1]}')
             print()
             time.sleep(tempo_de_espera)
             try:
@@ -84,69 +104,82 @@ def adicionar_estoque():
                 if estoque < 0:
                     os.system('cls')
                     print('Quantidade inválida!')
+                    conn.close()
                     return
-                produtos[l][2] += estoque
+                cursor.execute("UPDATE produtos SET quantidade = quantidade + ? WHERE LOWER(nome) = LOWER(?)",(estoque, nome))
+                conn.commit()
+                
             except ValueError:
                 os.system('cls')
                 print('Digite um valor valido! ')
+                conn.close()
                 return
             os.system('cls')
             print('estoque atualizado! ')
             print()
-            print(f"produto: {produtos[l][0]}")
-            print(f"estoque: {produtos[l][2]}")
+            print(f"produto: {resultado[0]}")
+            print(f"estoque: {resultado[1] + estoque}")
             print()
+            conn.close()
             return
+    conn.close()
     os.system('cls')
     print("produto nao encontrado!")
 
 def remover_estoque():
+    conn, cursor = conexao()
     nome = input('Digite o nome do produto que voce deseja remover: ').strip()
-    for l in range(len(produtos)):
-        if produtos[l][0].lower() == nome.lower():
-            os.system('cls')
-            print('Produto encontrado!')
-            print(f'Produto: {produtos[l][0]}')
-            print(f'Estoque atual: {produtos[l][2]}')
-            print()
-            time.sleep(tempo_de_espera)
-            try:
+    cursor.execute("SELECT nome, quantidade FROM produtos WHERE LOWER(nome) = LOWER(?)",(nome,))
+    resultado = cursor.fetchone()
+    if resultado:
+        os.system('cls')
+        print('Produto encontrado!')
+        print(f'Produto: {resultado[0]}')
+        print(f'Estoque atual: {resultado[1]}')
+        print()
+        time.sleep(tempo_de_espera)
+        try:
                 estoque = int(input('digite a quantidade que deseja remover: '))
-            except ValueError:
+        except ValueError:
                 os.system('cls')
                 print('Digite um valor válido!')
+                conn.close()
                 return
-            if estoque < 0:
+        if estoque < 0:
                 os.system('cls')
                 print('Quantidade inválida!')
+                conn.close()
                 return
-            if produtos[l][2] < estoque:
+        if resultado[1] < estoque:
                 os.system('cls')
                 print('Estoque insuficiente')
+                conn.close()
                 return
-
-            produtos[l][2] -= estoque
-            os.system('cls')
-            print('estoque atualizado! ')
-            print()
-            print(f"produto: {produtos[l][0]}")
-            print(f"estoque: {produtos[l][2]}")
-            print()
-            return
+        cursor.execute("UPDATE produtos SET quantidade = quantidade - ? WHERE LOWER(nome) = LOWER(?)", (estoque, nome,))
+        conn.commit()
+                
+        os.system('cls')
+        print('estoque atualizado! ')
+        print()
+        print(f"produto: {resultado[0]}")
+        print(f"estoque: {resultado[1] - estoque}")
+        print()
+        conn.close()
+        return
     os.system('cls')
     print("produto nao encontrado!")
+    conn.close()
 
 def valor_total():
-    estoque_total = 0
-    for l in range(len(produtos)):
-        valor = produtos[l][1] * produtos[l][2]
-        estoque_total += valor
+    conn, cursor = conexao()
+    cursor.execute("SELECT SUM(preco * quantidade) FROM produtos")
+    resultado = cursor.fetchone()
+    estoque_total = resultado[0] if resultado[0] is not None else 0
+    conn.close()
     print(f"Valor total do estoque: R${estoque_total:.2f}")
     time.sleep(tempo_de_espera)
     return estoque_total
     
-        
-produtos = []
 criar_tabela()
 while True:
 
@@ -163,26 +196,7 @@ while True:
     os.system('cls')
 
     if opcao == '1':
-        resultado = cadastro_produto()
-        if resultado is None:
-            continue
-        produto, preco, quantidade = resultado
-        for i in range(len(produtos)):
-            if produtos[i][0].lower() == produto.lower():
-                os.system('cls')
-                
-                print('produto cadastrado! ')
-                time.sleep(tempo_de_espera)
-                break
-        else:
-            conn , cursor = conexao()
-            cursor.execute("INSERT INTO produtos VALUES(?, ?, ?)", (produto, preco, quantidade))
-            conn.commit()
-            
-            os.system('cls')
-            print("produto cadrastrado! ")
-            time.sleep(tempo_de_espera)
-            os.system('cls')
+        cadastro_produto()
         continue
 
     elif opcao == '2':
