@@ -22,10 +22,10 @@ def cadastro_produto():
         produto = input("digite o nome do produto: ").strip()
         preco = float(input('digite o preço do produto: '))
         quantidade = int(input('digite a quantidado do produto: '))
-        if preco < 0:
+        if preco <= 0:
             print('preco negativo! ')
             return
-        if quantidade < 0:
+        if quantidade <= 0:
             print('quantidade negativa!')
             return 
 

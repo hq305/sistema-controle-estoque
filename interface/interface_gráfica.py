@@ -1,6 +1,9 @@
 import tkinter as tk
 import sqlite3
 from tkinter import messagebox
+
+
+
 def conexao():
     conn = sqlite3.connect('dados/estoque.db')
     cursor = conn.cursor()
@@ -9,7 +12,7 @@ def conexao():
 
 janela = tk.Tk()
 janela.title("Sistema de Estoque")
-janela.geometry("300x250")
+janela.geometry("500x600")
 
 def cadastrar():
     try:
@@ -17,11 +20,11 @@ def cadastrar():
         preco = float(campo_preco.get())
         quantidade = int(campo_Quantidade.get())
 
-        if preco < 0:
+        if preco <= 0:
             messagebox.showerror("Erro" ,"O preço não pode ser negativo")
             campo_preco.delete(0, tk.END)
             return
-        if quantidade < 0:
+        if quantidade <= 0:
             messagebox.showerror("Erro" ,"A quantidade não pode ser negativa")
             campo_Quantidade.delete(0, tk.END)
             return 
@@ -47,9 +50,28 @@ def cadastrar():
             campo_produto.delete(0, tk.END)
             campo_Quantidade.delete(0, tk.END)
             campo_preco.delete(0, tk.END)
+
+
+def atualizar_list():
+    lista.delete(0, tk.END)
+    conn, cursor = conexao()
+    cursor.execute("SELECT * FROM produtos")
+    produtos_banco = cursor.fetchall()
+    conn.close()
+    for l in produtos_banco:
+        produto, preco ,quantidade = l
+        texto = f'{produto} - R${preco:.2f} - {quantidade} unidades'
+        lista.insert(tk.END, texto)
+        
             
             
 
+lista = tk.Listbox(janela, height=20, width=30)
+scroll = tk.Scrollbar(janela)
+lista.config(yscrollcommand=scroll.set)
+scroll.config(command=lista.yview)
+lista.pack(side="left", fill="both")
+scroll.pack(side="right", fill="y")
 
 rotulo = tk.Label(janela, text="Nome:")
 rotulo.pack()
@@ -67,6 +89,9 @@ rotulo = tk.Label(janela, text="Quantidade:")
 rotulo.pack()
 campo_Quantidade = tk.Entry(janela)
 campo_Quantidade.pack()
+
+button_att_list = tk.Button(janela, text="Atualizar lista", command=atualizar_list)
+button_att_list.pack(pady=10)
 
 button = tk.Button(janela, text="cadastrar", command=cadastrar)
 button.pack(pady=10)
