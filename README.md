@@ -75,14 +75,14 @@ A ideia é continuar evoluindo o sistema conforme avanço nos estudos.
 ## Concluído
 
 - [x] Salvar os produtos em banco de dados (SQLite)
+- [x] Criar uma interface gráfica
+- [x] Melhorar a organização do projeto
 
 ## Próximas melhorias
 
-- [ ] Criar uma interface gráfica
 - [ ] Adicionar edição de produtos
 - [ ] Adicionar exclusão de produtos
 - [ ] Implementar relatórios de estoque
-- [ ] Melhorar a organização do projeto
 - [ ] Adicionar testes automatizados
 
 ## 👨‍💻 Autor
